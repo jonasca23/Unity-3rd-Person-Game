@@ -1,22 +1,32 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerBaseState : State
+public abstract class PlayerBaseState : State
 {
     protected PlayerStateMachine stateMachine;
-    public override void Enter()
+
+    public PlayerBaseState(PlayerStateMachine stateMachine)
     {
-        throw new System.NotImplementedException();
+        this.stateMachine = stateMachine;
     }
 
-    public override void Exit()
+    protected void Move(Vector3 motion, float deltaTime)
     {
-        throw new System.NotImplementedException();
+        stateMachine.Controller.Move((motion + stateMachine.ForceReceiver.Movement) * deltaTime);
     }
 
-    public override void Tick(float deltaTime)
+    protected void Move(float deltaTime)
     {
-        throw new System.NotImplementedException();
+        stateMachine.Controller.Move(Vector3.zero * deltaTime);
+    }
+
+    protected void FaceTarget()
+    {
+        if (stateMachine.Targeter.CurrentTarget == null) return;
+
+        Target _currentTarget = stateMachine.Targeter.CurrentTarget;
+        Vector3 lookPos = _currentTarget.transform.position - stateMachine.transform.position;
+        lookPos.y = 0f;
+
+        stateMachine.transform.rotation = Quaternion.LookRotation(lookPos);
     }
 }
