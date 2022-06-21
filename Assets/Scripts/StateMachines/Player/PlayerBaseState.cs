@@ -16,7 +16,7 @@ public abstract class PlayerBaseState : State
 
     protected void Move(float deltaTime)
     {
-        stateMachine.Controller.Move(Vector3.zero * deltaTime);
+        stateMachine.Controller.Move(stateMachine.ForceReceiver.Movement * deltaTime);
     }
 
     protected void FaceTarget()
@@ -28,5 +28,17 @@ public abstract class PlayerBaseState : State
         lookPos.y = 0f;
 
         stateMachine.transform.rotation = Quaternion.LookRotation(lookPos);
+    }
+
+    protected void ReturnToLocomotion()
+    {
+        if (stateMachine.Targeter.CurrentTarget != null)
+        {
+            stateMachine.SwitchState(new PlayerTargetingState(stateMachine));
+        }
+        else
+        {
+            stateMachine.SwitchState(new PlayerFreeLookState(stateMachine));
+        }
     }
 }

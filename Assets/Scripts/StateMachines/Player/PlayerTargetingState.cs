@@ -5,15 +5,16 @@ public class PlayerTargetingState : PlayerBaseState
     private readonly int TargetingBlendTreeHash = Animator.StringToHash("TargetingBlendTree");
     private readonly int TargetingForwardHash = Animator.StringToHash("TargetingForward");
     private readonly int TargetingRightHash = Animator.StringToHash("TargetingRight");
-
+    
+    private const float CrossFadeDuration = 0.3f;
     public PlayerTargetingState(PlayerStateMachine _stateMachine) : base(_stateMachine)
     {
     }
 
     public override void Enter()
     {
-        stateMachine.InputReader.CancelEvent += OnCancel;
-        stateMachine.Animator.Play(TargetingBlendTreeHash);
+        stateMachine.InputReader.TargetEvent += OnCancel;
+        stateMachine.Animator.CrossFadeInFixedTime(TargetingBlendTreeHash, CrossFadeDuration);
     }
 
     public override void Tick(float deltaTime)
@@ -30,6 +31,12 @@ public class PlayerTargetingState : PlayerBaseState
             return;
         }
 
+        if (stateMachine.InputReader.IsBlocking)
+        {
+            stateMachine.SwitchState(new PlayerBlockingState(stateMachine));
+            return;
+        }
+
         UpdateAnimator(deltaTime);
         FaceTarget();
         Move(CalculateMovement() * stateMachine.TargetingMovementSpeed, deltaTime);
@@ -37,7 +44,7 @@ public class PlayerTargetingState : PlayerBaseState
 
     public override void Exit()
     {
-        stateMachine.InputReader.CancelEvent -= OnCancel;
+        stateMachine.InputReader.TargetEvent -= OnCancel;
     }
 
     private void OnCancel()
