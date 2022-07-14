@@ -35,7 +35,7 @@ public class ForceReceiver : MonoBehaviour
             }
         }
     }
-
+    
     public void AddForce(Vector3 _force)
     {
         impact += _force;
@@ -44,5 +44,10 @@ public class ForceReceiver : MonoBehaviour
         {
             agent.enabled = false;
         }
+    }
+
+    public void Jump(float _jumpForce)
+    {
+        verticalVelocity += _jumpForce;
     }
 }

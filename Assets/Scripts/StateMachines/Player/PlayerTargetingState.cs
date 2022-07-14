@@ -5,7 +5,7 @@ public class PlayerTargetingState : PlayerBaseState
     private readonly int TargetingBlendTreeHash = Animator.StringToHash("TargetingBlendTree");
     private readonly int TargetingForwardHash = Animator.StringToHash("TargetingForward");
     private readonly int TargetingRightHash = Animator.StringToHash("TargetingRight");
-    
+
     private const float CrossFadeDuration = 0.3f;
     public PlayerTargetingState(PlayerStateMachine _stateMachine) : base(_stateMachine)
     {
@@ -14,6 +14,9 @@ public class PlayerTargetingState : PlayerBaseState
     public override void Enter()
     {
         stateMachine.InputReader.TargetEvent += OnCancel;
+        stateMachine.InputReader.DodgeEvent += OnDodge;
+        stateMachine.InputReader.JumpEvent += OnJump;
+
         stateMachine.Animator.CrossFadeInFixedTime(TargetingBlendTreeHash, CrossFadeDuration);
     }
 
@@ -39,12 +42,14 @@ public class PlayerTargetingState : PlayerBaseState
 
         UpdateAnimator(deltaTime);
         FaceTarget();
-        Move(CalculateMovement() * stateMachine.TargetingMovementSpeed, deltaTime);
+        Move(CalculateMovement(deltaTime) * stateMachine.TargetingMovementSpeed, deltaTime);
     }
 
     public override void Exit()
     {
         stateMachine.InputReader.TargetEvent -= OnCancel;
+        stateMachine.InputReader.DodgeEvent -= OnDodge;
+        stateMachine.InputReader.JumpEvent -= OnJump;
     }
 
     private void OnCancel()
@@ -53,7 +58,19 @@ public class PlayerTargetingState : PlayerBaseState
         stateMachine.SwitchState(new PlayerFreeLookState(stateMachine));
     }
 
-    private Vector3 CalculateMovement()
+    private void OnDodge()
+    {
+        if (stateMachine.InputReader.MovementValue == Vector2.zero) return;
+
+        stateMachine.SwitchState(new PlayerDodgingState(stateMachine, stateMachine.InputReader.MovementValue));
+    }
+
+    private void OnJump()
+    {
+        stateMachine.SwitchState(new PlayerJumpingState(stateMachine));
+    }
+
+    private Vector3 CalculateMovement(float deltaTime)
     {
         Vector3 movement = new Vector3();
 
