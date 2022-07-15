@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -35,7 +36,13 @@ public class ForceReceiver : MonoBehaviour
             }
         }
     }
-    
+
+    public void Reset()
+    {
+        impact = Vector3.zero;
+        verticalVelocity = 0f;
+    }
+
     public void AddForce(Vector3 _force)
     {
         impact += _force;
