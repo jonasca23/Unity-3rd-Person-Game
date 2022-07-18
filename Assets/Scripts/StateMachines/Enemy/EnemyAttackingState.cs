@@ -21,7 +21,7 @@ public class EnemyAttackingState : EnemyBaseState
     {
         FacePlayer();
 
-        float normalizedTime = GetNormalizedTime(stateMachine.Animator);
+        float normalizedTime = GetNormalizedTime(stateMachine.Animator, "Attack");
 
         if (normalizedTime >= 1)
         {

@@ -9,15 +9,22 @@ public class PlayerHangingState : PlayerBaseState
     private const float CrossFadeTime = 0.1f;
 
     private Vector3 ledgeForward;
+    private Vector3 closestPoint;
 
-    public PlayerHangingState(PlayerStateMachine _stateMachine, Vector3 _ledgeForward) : base(_stateMachine)
+    public PlayerHangingState(PlayerStateMachine _stateMachine, Vector3 _ledgeForward, Vector3 _closestPoint) : base(_stateMachine)
     {
+        closestPoint = _closestPoint;
         ledgeForward = _ledgeForward;
     }
 
     public override void Enter()
     {
         stateMachine.transform.rotation = Quaternion.LookRotation(ledgeForward, Vector3.up);
+
+        stateMachine.Controller.enabled = false;
+        stateMachine.transform.position = closestPoint - (stateMachine.LedgeDetector.transform.position - stateMachine.transform.position);
+        stateMachine.Controller.enabled = true;
+
         stateMachine.Animator.CrossFadeInFixedTime(HangingHash, CrossFadeTime);        
     }
 
